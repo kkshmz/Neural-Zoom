@@ -115,7 +115,8 @@ def main():
     num = params.start_num + 1
     for i in range(params.num_frames - 1):
         print('Creating frame number ' + str(num))
-        new_image = Image.open(params.output_dir + '/' + zeros(num-1, filename))
+        new_image = Image.new('RGB', (w,h), )
+        # new_image = Image.new('RGB',(w,h)params.output_dir + '/' + zeros(num-1, filename))
         new_image = crop(new_image, w - crop_w, h - crop_h)
         new_image.save(tmp_dir + zeros(num-1, filename))
         stylize(run, tmp_dir + zeros(num-1, filename), params.output_dir + '/' + zeros(num, filename)) 
@@ -125,8 +126,8 @@ def main():
     # Final clean up and and correct frame zero
     os.rmdir(tmp_dir)
     if params.starting_image == '':
-        image_zero = Image.open(params.output_dir + '/' + zeros(params.start_num, filename))
-        image_one = Image.open(params.output_dir + '/' + zeros(params.start_num+1, filename))
+        image_zero = Image.new(params.output_dir + '/' + zeros(params.start_num, filename))
+        image_one = Image.new(params.output_dir + '/' + zeros(params.start_num+1, filename))
         image_zero = image_zero.resize(image_one.size)
         os.remove(params.output_dir + '/' + zeros(params.start_num, filename))
         image_zero.save(params.output_dir + '/' + zeros(params.start_num, filename))
