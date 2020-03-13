@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 import subprocess
-
+import shutil
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -41,7 +41,7 @@ parser.add_argument("-init", choices=['random', 'image'], default='random')
 parser.add_argument("-init_image", default=None)
 parser.add_argument("-optimizer", choices=['lbfgs', 'adam'], default='lbfgs')
 parser.add_argument("-learning_rate", type=float, default=1e0)
-parser.add_argument("-lbfgs_num_correction", type=int, default=0)
+parser.add_argument("-lbfgs_num_correction", type=int, default=100)
 
 # Output options      
 parser.add_argument("-print_iter", type=int, default=50)
@@ -118,16 +118,17 @@ def main():
         new_image = Image.new('RGB', (w,h), )
         # new_image = Image.new('RGB',(w,h)params.output_dir + '/' + zeros(num-1, filename))
         new_image = crop(new_image, w - crop_w, h - crop_h)
-        new_image.save(tmp_dir + zeros(num-1, filename))
-        stylize(run, tmp_dir + zeros(num-1, filename), params.output_dir + '/' + zeros(num, filename)) 
-        os.remove(tmp_dir + zeros(num-1, filename))
+        new_image.save(tmp_dir + zeros(int(num-int(1)), filename))
+        stylize(run, tmp_dir + zeros(int(num-int(1)), filename), params.output_dir + '/' + zeros(num, filename)) 
+        os.remove(tmp_dir + zeros(int(num-int(1)), filename))
         num +=1
 
     # Final clean up and and correct frame zero
-    os.rmdir(tmp_dir)
+    #os.rmdir(tmp_dir)
+    shutil.rmtree(tmp_dir)
     if params.starting_image == '':
         image_zero = Image.new(params.output_dir + '/' + zeros(params.start_num, filename))
-        image_one = Image.new(params.output_dir + '/' + zeros(params.start_num+1, filename))
+        image_one = Image.new(params.output_dir + '/' + zeros(int(params.start_num+1), filename))
         image_zero = image_zero.resize(image_one.size)
         os.remove(params.output_dir + '/' + zeros(params.start_num, filename))
         image_zero.save(params.output_dir + '/' + zeros(params.start_num, filename))
@@ -141,7 +142,7 @@ def get_dim():
 def first_run(run, output):
     if params.starting_image != '':
         first_image = Image.open(params.starting_image).convert('RGB')
-        first_image.save(tmp_dir + zeros(params.start_num -1, output)) 
+        first_image.save(tmp_dir + zeros(params.start_num, output)) 
     else: 
         stylize(run, params.content_image, params.output_dir + '/' + zeros(params.start_num, output))
         first_image = Image.open(params.output_dir + '/' + zeros(params.start_num, output))
@@ -211,11 +212,13 @@ def parameters():
     if not params.disable_check:
        remove_list.append('disable_check')
     params_dict = dict(vars(params))
+    print(params_dict)
     new_string = ''
 
     if params.script != 'fast_neural_style.lua':
         for arg, value in params_dict.items():
             if arg not in remove_list and arg not in fast_ns_list and value != None:
+                #new_string = new_string + str("-" + arg) + " " + str(value) + " " 
                 new_string = new_string + str("-" + arg) + " " + str(value) + " " 
     elif params.script == 'fast_neural_style.lua': 
         params.content_image = params.input_image
